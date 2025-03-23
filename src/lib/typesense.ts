@@ -1,17 +1,21 @@
 import { Client } from 'typesense';
 
-const typesense = new Client({
-  nodes: [
-    {
-      host: process.env.TYPESENSE_HOST ?? 'localhost',
-      port: Number(process.env.TYPESENSE_PORT ?? 8108),
-      protocol: process.env.TYPESENSE_PROTOCOL ?? 'http',
-    },
-  ],
-  apiKey: process.env.TYPESENSE_SEARCH_API_KEY ?? '',
-  // 15 minutes
-  connectionTimeoutSeconds: 15 * 60,
-  logLevel: 'debug',
-});
+function createTypesenseClient() {
+  const host = process.env.TYPESENSE_HOST ?? 'localhost';
+  const port = Number(process.env.TYPESENSE_PORT ?? 8108);
+  const protocol = process.env.TYPESENSE_PROTOCOL ?? 'http';
+  const apiKey = process.env.TYPESENSE_SEARCH_API_KEY;
 
-export default typesense;
+  if (!apiKey) {
+    throw new Error('TYPESENSE_SEARCH_API_KEY is required');
+  }
+
+  return new Client({
+    nodes: [{ host, port, protocol }],
+    apiKey,
+    connectionTimeoutSeconds: 15 * 60,
+    logLevel: 'debug',
+  });
+}
+
+export const typesense = createTypesenseClient();

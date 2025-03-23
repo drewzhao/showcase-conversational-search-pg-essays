@@ -1,9 +1,8 @@
 'use client';
 
 import { Message, chat } from '@/lib/actions';
-import { PaperPlaneRight } from '@phosphor-icons/react';
-import autosize from 'autosize';
-import { KeyboardEventHandler, useEffect, useRef } from 'react';
+import { PaperPlaneRight } from '@phosphor-icons/react/dist/ssr';
+import { KeyboardEventHandler, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useConversationState } from './ConversationContext';
 
@@ -11,20 +10,10 @@ function Textarea() {
   const ref = useRef<HTMLTextAreaElement>(null);
   const { pending } = useFormStatus();
 
-  useEffect(() => {
-    if (!ref.current) return;
-    autosize(ref.current);
-  }, []);
-
   const handleKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
-    if (!ref.current) return;
-
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-
-      if (!pending) {
-        ref.current.form?.requestSubmit();
-      }
+      if (!pending) ref.current?.form?.requestSubmit();
     }
   };
 
@@ -32,8 +21,7 @@ function Textarea() {
     <textarea
       ref={ref}
       name="message"
-      className="w-full bg-transparent rounded-xl pl-5 pr-12 text-white resize-none focus:outline-none placeholder:text-gray-500 max-h-40"
-      rows={1}
+      className="w-full bg-transparent rounded-xl pl-5 pr-12 text-white resize-none focus:outline-none placeholder:text-gray-500 min-h-[2.5rem] max-h-40 overflow-auto"
       placeholder="Ask Typesense..."
       onKeyDown={handleKeyDown}
       required
@@ -62,15 +50,15 @@ function SubmitButton() {
             r="10"
             stroke="currentColor"
             strokeWidth="3"
-          ></circle>
+          />
           <path
             className="opacity-75"
             fill="currentColor"
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          ></path>
+          />
         </svg>
       ) : (
-        <PaperPlaneRight weight="fill" />
+        <PaperPlaneRight weight="fill" className="h-4 w-4" />
       )}
     </button>
   );
@@ -85,40 +73,45 @@ export default function Form({ onRequest }: FormProps) {
   const [{ id: conversationId }, setConversation] = useConversationState();
 
   return (
-    <>
-      <form
-        ref={ref}
-        className="relative flex py-4 rounded-2xl bg-gradient-to-b from-gray-900 to-gray-950 shadow-lg"
-        autoComplete="off"
-        action={async (formData) => {
-          const message = formData.get('message');
-          if (typeof message !== 'string') return;
+    <form
+      ref={ref}
+      className="relative flex py-4 rounded-2xl bg-gradient-to-b from-gray-900 to-gray-950 shadow-lg"
+      autoComplete="off"
+      action={async (formData) => {
+        const message = formData.get('message');
+        if (typeof message !== 'string') return;
 
-          const userMessage: Message = { message, sender: 'user', sources: [] };
-          onRequest(userMessage);
+        const userMessage: Message = { message, sender: 'user', sources: [] };
+        onRequest(userMessage);
 
-          ref.current?.reset();
+        ref.current?.reset();
+        try {
           const response = await chat(formData);
-          if (!response) return;
-
+          if (!response) throw new Error('No response from chat');
           setConversation(({ messages: history }) => ({
             id: response.id,
             messages: [
               ...history,
               userMessage,
-              {
-                message: response.message,
-                sender: 'ai',
-                sources: response.sources,
-              },
+              { message: response.message, sender: 'ai', sources: response.sources },
             ],
           }));
-        }}
-      >
-        <input hidden name="conversation_id" value={conversationId} readOnly />
-        <Textarea />
-        <SubmitButton />
-      </form>
-    </>
+        } catch (error) {
+          console.error('Chat error:', error);
+          setConversation(({ messages: history }) => ({
+            id: conversationId,
+            messages: [
+              ...history,
+              userMessage,
+              { message: 'Sorry, something went wrong.', sender: 'ai', sources: [] },
+            ],
+          }));
+        }
+      }}
+    >
+      <input hidden name="conversation_id" value={conversationId} readOnly />
+      <Textarea />
+      <SubmitButton />
+    </form>
   );
 }

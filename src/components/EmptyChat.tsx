@@ -1,5 +1,6 @@
-import { Message, chat } from '@/lib/actions';
-import { useConversationState } from './ConversationContext';
+'use client';
+
+import { Message } from '@/lib/actions';
 import { FormProps } from './Form';
 
 const INITIAL_MESSAGES = [
@@ -9,30 +10,29 @@ const INITIAL_MESSAGES = [
   'Perspective on the role of hacker culture in society',
 ];
 
-export default function EmptyChat({ onRequest }: FormProps) {
-  const [, setConversation] = useConversationState();
+function SuggestionButton({
+  message,
+  onClick,
+}: {
+  message: string;
+  onClick: (message: string) => void;
+}) {
+  return (
+    <button
+      className="rounded-lg bg-gray-100 py-3 xs:py-2 px-4 text-xs text-left text-gray-900 hover:bg-gray-200 transition-colors"
+      onClick={() => onClick(message)}
+    >
+      {message}
+    </button>
+  );
+}
 
-  const sendMessage = (message: string) => async () => {
+export default function EmptyChat({ onRequest }: FormProps) {
+  const handleClick = (message: string) => {
     const userMessage: Message = { message, sender: 'user', sources: [] };
     onRequest(userMessage);
-
-    const formData = new FormData();
-    formData.set('message', message);
-    const response = await chat(formData);
-    if (!response) return;
-
-    setConversation({
-      id: response.id,
-      messages: [
-        userMessage,
-        {
-          message: response.message,
-          sender: 'ai',
-          sources: response.sources,
-        },
-      ],
-    });
   };
+
   return (
     <div className="flex flex-col flex-grow items-center justify-center">
       <h2 className="text-2xl font-semibold text-center">
@@ -44,6 +44,7 @@ export default function EmptyChat({ onRequest }: FormProps) {
         <a
           href="https://paulgraham.com/articles.html"
           target="_blank"
+          rel="noopener noreferrer"
           className="text-gray-900 underline underline-offset-2"
         >
           Paul Graham's essays
@@ -52,13 +53,7 @@ export default function EmptyChat({ onRequest }: FormProps) {
       </p>
       <div className="grid xs:grid-cols-2 gap-2 mt-14">
         {INITIAL_MESSAGES.map((message, i) => (
-          <button
-            className="rounded-lg bg-gray-100 py-3 xs:py-2 px-4 text-xs text-left text-gray-900 hover:bg-gray-200 transition-colors"
-            key={i}
-            onClick={sendMessage(message)}
-          >
-            {message}
-          </button>
+          <SuggestionButton key={i} message={message} onClick={handleClick} />
         ))}
       </div>
     </div>

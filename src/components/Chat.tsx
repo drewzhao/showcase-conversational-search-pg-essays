@@ -1,9 +1,9 @@
 'use client';
 
-import type { Message } from '@/lib/actions';
-import { UserCircle } from '@phosphor-icons/react/dist/ssr';
-import { useEffect, useOptimistic } from 'react';
+import { useRef, useEffect, useOptimistic } from 'react';
 import Markdown from 'react-markdown';
+import { UserCircle } from '@phosphor-icons/react/dist/ssr';
+import type { Message } from '@/lib/actions';
 import { useConversationState } from './ConversationContext';
 import EmptyChat from './EmptyChat';
 import Form from './Form';
@@ -34,7 +34,7 @@ function ChatMessage({
       <div className="flex items-center gap-2">
         <div className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center">
           {sender.avatar ? (
-            <img className="w-full h-full text-gray-300" src={sender.avatar} />
+            <img className="w-full h-full text-gray-300" src={sender.avatar} alt={`${sender.name} avatar`} />
           ) : (
             <UserCircle
               weight="fill"
@@ -56,6 +56,7 @@ function ChatMessage({
                     <a
                       href={source.url}
                       target="_blank"
+                      rel="noopener noreferrer"
                       className="w-full p-3 rounded-md bg-gray-100 text-xs hover:bg-gray-200 transition-colors overflow-hidden"
                       key={i}
                     >
@@ -70,7 +71,6 @@ function ChatMessage({
             )}
           </>
         ) : (
-          // Skeleton loaders
           <div className="animate-pulse flex flex-col mt-4 gap-2">
             <div className="max-w-80 w-9/12 h-2.5 xs:h-3 rounded-full bg-gray-200" />
             <div className="max-w-96 w-10/12 h-2.5 xs:h-3 rounded-full bg-gray-200" />
@@ -83,17 +83,15 @@ function ChatMessage({
 }
 
 export default function Chat() {
-  const [{ messages }] = useConversationState();
+  const [{ messages }, setConversation] = useConversationState();
   const [optimisticMessages, addOptimisticMessage] = useOptimistic(
     messages,
     (state, newMessages: Message[]) => [...state, ...newMessages]
   );
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      behavior: 'smooth',
-    });
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [optimisticMessages]);
 
   const addResponseLoadingPlaceholder = (userMessage: Message) => {
@@ -109,28 +107,23 @@ export default function Chat() {
         <EmptyChat onRequest={addResponseLoadingPlaceholder} />
       ) : (
         <div className="flex flex-col pt-6 divide-y divide-gray-100">
-          {optimisticMessages.map(
-            ({ sender, message, sources, isLoading }, i) => (
-              <ChatMessage
-                sender={
-                  sender === 'user'
-                    ? { name: 'You' }
-                    : {
-                        name: 'Typesense',
-                        avatar: 'https://github.com/typesense.png',
-                      }
-                }
-                message={message}
-                isLoading={isLoading}
-                isMarkdown={sender === 'ai'}
-                sources={sources}
-                key={i}
-              />
-            )
-          )}
+          {optimisticMessages.map(({ sender, message, sources, isLoading }, i) => (
+            <ChatMessage
+              sender={
+                sender === 'user'
+                  ? { name: 'You' }
+                  : { name: 'Typesense', avatar: 'https://github.com/typesense.png' }
+              }
+              message={message}
+              isLoading={isLoading}
+              isMarkdown={sender === 'ai'}
+              sources={sources}
+              key={i}
+            />
+          ))}
+          <div ref={chatEndRef} />
         </div>
       )}
-
       <div className="mt-auto sticky inset-x-0 bottom-0 pt-12 pb-4 xs:pb-8 bg-gradient-to-b from-transparent via-[40%] via-white to-white">
         <Form onRequest={addResponseLoadingPlaceholder} />
       </div>

@@ -3,7 +3,6 @@
 import { Message } from '@/lib/actions';
 import {
   Dispatch,
-  PropsWithChildren,
   SetStateAction,
   createContext,
   useContext,
@@ -17,19 +16,13 @@ export interface ConversationState {
 
 const ConversationContext = createContext<
   [ConversationState, Dispatch<SetStateAction<ConversationState>>]
->([
-  {
-    id: '',
-    messages: [],
-  },
-  () => {},
-]);
+>([{ id: '', messages: [] }, () => {}]);
 
 export const useConversationState = () => useContext(ConversationContext);
 
 export default function ConversationContextProvider({
   children,
-}: PropsWithChildren) {
+}: { children: React.ReactNode }) {
   const [conversation, setConversation] = useState<ConversationState>({
     id: '',
     messages: [],
