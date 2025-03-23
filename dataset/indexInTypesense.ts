@@ -138,8 +138,8 @@ async function indexInTypesense() {
       history_collection: conversationHistoryCollectionName,
 
       /*** OpenAI gpt-4-turbo ***/
-      model_name: 'vllm/qwen2.5-7b-instruct',
-      vllm_url: "https://cloud.infini-ai.com/maas/",
+      model_name: 'openai/qwen2.5-7b-instruct',
+      openai_url: "https://cloud.infini-ai.com/maas/",
       max_bytes: 16384,
       api_key: process.env.OPENAI_API_KEY ?? '',
 
