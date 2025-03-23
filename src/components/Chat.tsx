@@ -102,14 +102,17 @@ export default function Chat() {
         { sender: 'ai', message: '', isLoading: true, sources: [] },
       ]);
     });
-    const formData = new FormData();
-    formData.set('message', userMessage.message);
-    const response = await chat(formData);
-    if (response) {
-      setConversation(({ messages: history }) => ({
-        id: response.id,
-        messages: [...history, userMessage, response],
-      }));
+    // Only fetch response for EmptyChat clicks, not form submissions
+    if (!messages.length) {
+      const formData = new FormData();
+      formData.set('message', userMessage.message);
+      const response = await chat(formData);
+      if (response) {
+        setConversation(({ messages: history }) => ({
+          id: response.id,
+          messages: [...history, userMessage, response],
+        }));
+      }
     }
   };
 
