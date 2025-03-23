@@ -114,7 +114,7 @@ async function indexInTypesense() {
   }
 
   // Create the LLM-powered conversation model resource
-  const conversationModelName = 'qwq-32b';
+  const conversationModelName = 'qwen2.5-7b-instruct';
   // const conversationModelName = 'llama-3-8b-instruct'
 
   try {
@@ -138,7 +138,7 @@ async function indexInTypesense() {
       history_collection: conversationHistoryCollectionName,
 
       /*** OpenAI gpt-4-turbo ***/
-      model_name: 'vllm/qwq-32b',
+      model_name: 'vllm/qwen2.5-7b-instruct',
       vllm_url: "https://cloud.infini-ai.com/maas/",
       max_bytes: 16384,
       api_key: process.env.OPENAI_API_KEY ?? '',

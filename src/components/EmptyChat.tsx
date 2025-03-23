@@ -4,10 +4,10 @@ import { Message } from '@/lib/actions';
 import { FormProps } from './Form';
 
 const INITIAL_MESSAGES = [
-  "What is the Maker's Schedule?",
-  'What are the characteristics of a good startup idea?',
-  'What are the advantages and disadvantages of a startup being located in Silicon Valley?',
-  'Perspective on the role of hacker culture in society',
+  "ComfyUI 工作流托管服务是按什么计费的？",
+  '无法激活 Conda 环境',
+  '如何登录任务 worker 节点',
+  '为什么没有 cuda 环境和 nvcc 命令',
 ];
 
 function SuggestionButton({
@@ -36,20 +36,19 @@ export default function EmptyChat({ onRequest }: FormProps) {
   return (
     <div className="flex flex-col flex-grow items-center justify-center">
       <h2 className="text-2xl font-semibold text-center">
-        Conversational Search on PG Essays
+      Typesense + 无问芯穹: AI 驱动的对话式搜索
       </h2>
       <p className="mt-4 text-gray-700 text-center max-w-lg text-balance">
-        This demo showcases the AI powered conversational search capabilities of
-        Typesense with{' '}
+        本页面展示了基于 Typesense 实现的 AI 驱动的对话式搜索功能，数据源来自 {' '}
         <a
           href="https://paulgraham.com/articles.html"
           target="_blank"
           rel="noopener noreferrer"
           className="text-gray-900 underline underline-offset-2"
         >
-          Paul Graham's essays
+          无问芯穹技术文档
         </a>
-        .
+        。
       </p>
       <div className="grid xs:grid-cols-2 gap-2 mt-14">
         {INITIAL_MESSAGES.map((message, i) => (

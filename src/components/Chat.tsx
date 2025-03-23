@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useEffect, useOptimistic } from 'react';
+import { useRef, useEffect, useOptimistic, startTransition } from 'react';
 import Markdown from 'react-markdown';
 import { UserCircle } from '@phosphor-icons/react/dist/ssr';
 import type { Message } from '@/lib/actions';
+import { chat } from '@/lib/actions';
 import { useConversationState } from './ConversationContext';
 import EmptyChat from './EmptyChat';
 import Form from './Form';
@@ -94,11 +95,22 @@ export default function Chat() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [optimisticMessages]);
 
-  const addResponseLoadingPlaceholder = (userMessage: Message) => {
-    addOptimisticMessage([
-      userMessage,
-      { sender: 'ai', message: '', isLoading: true, sources: [] },
-    ]);
+  const addResponseLoadingPlaceholder = async (userMessage: Message) => {
+    startTransition(() => {
+      addOptimisticMessage([
+        userMessage,
+        { sender: 'ai', message: '', isLoading: true, sources: [] },
+      ]);
+    });
+    const formData = new FormData();
+    formData.set('message', userMessage.message);
+    const response = await chat(formData);
+    if (response) {
+      setConversation(({ messages: history }) => ({
+        id: response.id,
+        messages: [...history, userMessage, response],
+      }));
+    }
   };
 
   return (

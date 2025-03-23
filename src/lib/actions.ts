@@ -41,7 +41,7 @@ export async function chat(formData: FormData): Promise<Message & { id: string }
   const message = formData.get('message');
   if (typeof message !== 'string') return;
 
-  const conversationModelName = 'qwq-32b';
+  const conversationModelName = 'qwen2.5-7b-instruct';
 
   try {
     const response = await typesense

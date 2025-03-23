@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata = {
   title: 'Conversational Search with Typesense',
   description:
-    "This demo showcases the AI powered conversational search capabilities of Typesense with Paul Graham's essays.",
+    "Typesense + 无问芯穹技术文档: AI 驱动的对话式搜索",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
