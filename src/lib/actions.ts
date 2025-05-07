@@ -41,7 +41,7 @@ export async function chat(formData: FormData): Promise<Message & { id: string }
   const message = formData.get('message');
   if (typeof message !== 'string') return;
 
-  const conversationModelName = 'qwen2.5-7b-instruct';
+  const conversationModelName = 'deepseek-v3';
 
   try {
     const response = await typesense
